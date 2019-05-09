@@ -2,8 +2,10 @@
 #include "Operator.h"
 #include "Number.h"
 #include <iostream>
+#include <vector>
+#include <algorithm>
 
-int charToInt(char c)
+int ExpressionTree::charToInt(char c) const
 {
 	switch (c)
 	{
@@ -21,37 +23,101 @@ int charToInt(char c)
 	}
 }
 
+int ExpressionTree::countOperators(const std::string & expression) const
+{
+	int operatorCount = 0;
+	for (unsigned int i = 0; i < expression.length(); i++)
+	{
+		if (Operator::charToOperator.count(expression[i]))
+		{
+			operatorCount++;
+		}
+	}
+	return operatorCount;
+}
+
 ExpressionTree::ExpressionTree()
 {}
 
-ExpressionTree::ExpressionTree(std::string expression)
+ExpressionTree::ExpressionTree(const std::string& expression)
 {
-	int highestPrecedenceIndex = -1;
-	int highestPrecedence = -1;
+	std::vector<Operator> operators(0);
+
+	int parenthesisLevel = 0;
 	for (unsigned int i = 0; i < expression.length(); i++)
 	{
 		char current = expression[i];
-		if (Operator::operatorPrecedenceS.count(current))
-		{
-			if (Operator::operatorPrecedenceS[current] > highestPrecedence)
-			{
-				highestPrecedenceIndex = i;
-				highestPrecedence = Operator::operatorPrecedenceS[expression[i]];
-			}
-		}
 
+		if (current == '(')
+		{
+			parenthesisLevel++;
+
+		}
+		else if (current == ')')
+		{
+			parenthesisLevel--;
+		}
+		else if (Operator::operatorPrecedenceS.count(current))
+		{
+			operators.push_back(Operator(Operator::charToOperator[expression[i]], i, parenthesisLevel));
+		}
 	}
 
-	head = new OperatorNode(Operator::charToOperator[expression[highestPrecedenceIndex]]);
+	std::sort(operators.begin(), operators.end(), [](const Operator& left, const Operator& right) {
+		return left.GetPrecedence() < right.GetPrecedence();
+	});
 
-	for (size_t i = highestPrecedenceIndex; i < expression.length(); i++)
+	std::sort(operators.begin(), operators.end(), [](const Operator& left, const Operator& right) {
+		return left.parenthesisLevel < right.parenthesisLevel;
+	});
+
+	//head = new OperatorNode(Operator::charToOperator[expression[highestPrecedenceIndex]]);
+
+	if (parenthesisLevel != 0)
 	{
+		std::cout << "Not all parenthesies were closed. Answer might not be correct" << std::endl;
+	}
+
+
+	/*if (highestPrecedenceIndex + 1 >= expression.length())
+	{
+		throw std::exception("Operator without number");
+	}
+
+	bool foundNumber = false;
+	for (size_t i = highestPrecedenceIndex + 1; i < expression.length(); i++)
+	{
+		if (Operator::charToOperator.count(expression[i]))
+		{
+			throw std::exception("Two operators cannot follow one another");
+		}
+
 		if (charToInt(expression[i]) >= 0)
 		{
 			head->childRight = new NumberNode(charToInt(expression[i]));
+			foundNumber = true;
 			break;
 		}
 	}
+
+
+
+	if (highestPrecedenceIndex - 1 < 0)
+	{
+		throw std::exception("Operator without number");
+	}
+
+	foundNumber = false;
+	for (size_t i = highestPrecedenceIndex - 1; i >= 0; i--)
+	{
+		if (charToInt(expression[i]) >= 0)
+		{
+			head->childLeft = new NumberNode(charToInt(expression[i]));
+			foundNumber = true;
+			break;
+		}
+	}*/
+
 }
 
 std::string ExpressionTree::tostring()

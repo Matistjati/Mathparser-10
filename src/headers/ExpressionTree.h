@@ -47,10 +47,14 @@ private:
 class ExpressionTree
 {
 public:
+	bool containsUnknown = false;
 	Node *head;
 	ExpressionTree();
-	ExpressionTree(std::string source);
+	ExpressionTree(const std::string& expression);
 	std::string tostring();
+private:
+	int charToInt(char c) const;
+	int countOperators(const std::string& expression) const;
 };
 
 #endif

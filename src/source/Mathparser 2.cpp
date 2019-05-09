@@ -62,17 +62,24 @@ int main()
 
 	if (keyword == Keyword::eval)
 	{
-		ExpressionTree tree;
-		if (indexToFirstSpace == -1)
+		try
 		{
-			tree = ExpressionTree(expression);
-		}
-		else
-		{
-			tree = ExpressionTree(expression.substr(indexToFirstSpace, expression.npos));
-		}
+			ExpressionTree tree;
+			if (indexToFirstSpace == -1)
+			{
+				tree = ExpressionTree(expression);
+			}
+			else
+			{
+				tree = ExpressionTree(expression.substr(indexToFirstSpace, expression.npos));
+			}
 
-		std::cout << tree.tostring();
+			std::cout << tree.tostring();
+		}
+		catch (const std::exception& ex)
+		{
+			std::cout << "Error: " << ex.what() << std::endl;
+		}
 	}
 	else if (keyword == Keyword::bad)
 	{
